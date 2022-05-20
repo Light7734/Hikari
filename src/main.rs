@@ -9,14 +9,28 @@ use crate::color::write_color;
 pub mod ray;
 use crate::ray::Ray;
 
-// Background gradiant
-pub fn ray_color(ray: &Ray) -> Color {
-    let unit_dir: Vec3 = vec3::unit_vec(ray.dir); // turn ray direction(ending point) into unit vector, making Y axis to be in range[-1.0 -> 1.0]
-    let lerp_val = 0.5 * (unit_dir.y + 1.0); // turn lerp_value(Y Direction) into unit length [0 -> 1]
+pub fn hit_sphere(center: &Point3, radius: f64, ray: &Ray) -> bool {
+    let oc = ray.orig - *center;
+    let a = vec3::dot(&ray.dir, &ray.dir);
+    let b = 2.0 * vec3::dot(&oc, &ray.dir);
+    let c = vec3::dot(&oc, &oc) - radius * radius;
+    let discriminant = b * b - 4.0 * a * c;
 
-    // lerp (linear-interpolate) between colorA -> colorB
-    // finalColor = ((1.0 - lerp_val) * colorA) + ((lerp_val) * colorB)
-    ((1.0 - lerp_val) * Color::new(1.0, 1.0, 1.0)) + (lerp_val * Color::new(0.5, 0.7, 0.9))
+    discriminant > 0.0
+}
+
+// Raytrace !
+pub fn ray_color(ray: &Ray) -> Color {
+    if hit_sphere(&Point3::new(0.0, 0.0, -1.0), 0.5, ray) {
+        Color::new(1.0, 0.0, 0.0)
+    } else {
+        let unit_dir: Vec3 = vec3::unit_vec(ray.dir); // turn ray direction(ending point) into unit vector, making Y axis to be in range[-1.0 -> 1.0]
+        let lerp_val = 0.5 * (unit_dir.y + 1.0); // turn lerp_value(Y Direction) into unit length [0 -> 1]
+
+        // lerp (linear-interpolate) between colorA -> colorB
+        // finalColor = ((1.0 - lerp_val) * colorA) + ((lerp_val) * colorB)
+        ((1.0 - lerp_val) * Color::new(1.0, 1.0, 1.0)) + (lerp_val * Color::new(0.5, 0.7, 0.9))
+    }
 }
 
 fn main() {
