@@ -9,10 +9,14 @@ use crate::color::write_color;
 pub mod ray;
 use crate::ray::Ray;
 
+// Background gradiant
 pub fn ray_color(ray: &Ray) -> Color {
-    let unit_dir: Vec3 = vec3::unit_vec(ray.dir);
-    let t = 0.5 * (unit_dir.y + 1.0);
-    (1.0 - t) * Color::new(1.0, 1.0, 1.0) + t * Color::new(0.5, 0.7, 0.9)
+    let unit_dir: Vec3 = vec3::unit_vec(ray.dir); // turn ray direction(ending point) into unit vector, making Y axis to be in range[-1.0 -> 1.0]
+    let lerp_val = 0.5 * (unit_dir.y + 1.0); // turn lerp_value(Y Direction) into unit length [0 -> 1]
+
+    // lerp (linear-interpolate) between colorA -> colorB
+    // finalColor = ((1.0 - lerp_val) * colorA) + ((lerp_val) * colorB)
+    ((1.0 - lerp_val) * Color::new(1.0, 1.0, 1.0)) + (lerp_val * Color::new(0.5, 0.7, 0.9))
 }
 
 fn main() {
@@ -30,7 +34,7 @@ fn main() {
     let horizontal = Vec3::new(viewport_width, 0.0, 0.0);
     let vertical = Vec3::new(0.0, viewport_height, 0.0);
     let lower_left_corner =
-        origin - horizontal / 2.0 - vertical / 2.0 - Vec3::new(0.0, 0.0, focal_length);
+        origin - (horizontal / 2.0) - (vertical / 2.0) - Vec3::new(0.0, 0.0, focal_length);
 
     print!("P3\n{} {}\n255\n", image_width, image_height);
 
@@ -41,7 +45,7 @@ fn main() {
             let v = (j as f64) / ((image_height - 1) as f64);
             let ray = Ray::new(
                 origin,
-                lower_left_corner + u * horizontal + v * vertical - origin,
+                (u * horizontal) + (v * vertical) + lower_left_corner - origin,
             );
 
             write_color(ray_color(&ray));
