@@ -21,24 +21,24 @@ impl Vec3 {
     };
 
     pub fn new(x: f64, y: f64, z: f64) -> Vec3 {
-        Vec3 { x: x, y: y, z: z }
+        Vec3 { x, y, z }
     }
 
-    pub fn length(self) -> f64 {
+    pub fn length(&self) -> f64 {
         return self.length_squared().sqrt();
     }
 
-    pub fn length_squared(self) -> f64 {
+    pub fn length_squared(&self) -> f64 {
         return (self.x * self.x) + (self.y * self.y) + (self.z * self.z);
     }
-}
 
-pub fn dot(lhs: &Vec3, rhs: &Vec3) -> f64 {
-    (lhs.x * rhs.x) + (lhs.y * rhs.y) + (lhs.z * rhs.z)
-}
+    pub fn dot(&self, rhs: &Vec3) -> f64 {
+        (self.x * rhs.x) + (self.y * rhs.y) + (self.z * rhs.z)
+    }
 
-pub fn unit_vec(value: Vec3) -> Vec3 {
-    value / value.length()
+    pub fn unit(&self) -> Vec3 {
+        *self / self.length()
+    }
 }
 
 impl ops::Add<Vec3> for Vec3 {
