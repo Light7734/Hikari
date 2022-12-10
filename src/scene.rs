@@ -27,23 +27,36 @@ impl Scene {
         self.hittables.shrink_to(10);
     }
 
-    pub fn process_ray(&self, ray: &Ray, t_min: f64, t_max: f64) -> Color {
+    pub fn process_ray(&self, ray: &Ray, max_bounce: u32) -> Color {
         let mut closest_rec = HitRecord {
             normal: Vec3::new(0.0, 0.0, 0.0),
             point: Point3::new(0.0, 0.0, 0.0),
-            t: t_max,
+            t: f64::INFINITY,
             front_face: false,
         };
 
+        if max_bounce <= 0 {
+            return Color::new(0.0, 0.0, 0.0);
+        }
+
         let mut temp_rec: HitRecord = closest_rec.clone();
         for hittable in self.hittables.iter() {
-            if hittable.hit(ray, t_min, closest_rec.t, &mut temp_rec) {
+            if hittable.hit(ray, 0.001, closest_rec.t, &mut temp_rec) {
                 closest_rec = temp_rec;
             }
         }
 
+        let target = temp_rec.point + Vec3::random_in_hemisphere(&temp_rec.normal);
         match closest_rec.normal != Vec3::new(0.0, 0.0, 0.0) {
-            true => return 0.5 * (closest_rec.normal + Color::new(1.0, 1.0, 1.0)),
+            true => {
+                return self.process_ray(
+                    &Ray {
+                        orig: temp_rec.point,
+                        dir: target - temp_rec.point,
+                    },
+                    max_bounce - 1,
+                ) * 0.5
+            }
 
             false => {
                 let unit_y = ray.dir.unit().y;

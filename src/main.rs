@@ -22,7 +22,7 @@ use rand::distributions::{Distribution, Uniform};
 fn main() {
     // Image
     let aspect_ratio = 16.0 / 9.0;
-    let image_width = 1000;
+    let image_width = 400;
     let image_height = ((image_width as f64) / aspect_ratio) as i32;
 
     let camera = Camera::new();
@@ -43,7 +43,7 @@ fn main() {
         radius: 100.0,
     }));
 
-    let sample_count = 100;
+    let sample_count = 64;
     let between = Uniform::from(0.0..1.0);
     let mut rng = rand::thread_rng();
 
@@ -57,7 +57,7 @@ fn main() {
                 let v =
                     ((j as f64) + (between.sample(&mut rng) as f64)) / ((image_height - 1) as f64);
 
-                color += scene.process_ray(&camera.get_ray(u, v), 0.0, f64::INFINITY);
+                color += scene.process_ray(&mut camera.get_ray(u, v), 8);
             }
 
             write_color(color, sample_count);

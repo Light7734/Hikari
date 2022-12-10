@@ -1,5 +1,7 @@
 use std::ops;
 
+use rand::distributions::{Distribution, Uniform};
+
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub struct Vec3 {
     pub x: f64,
@@ -38,6 +40,37 @@ impl Vec3 {
 
     pub fn unit(&self) -> Vec3 {
         *self / self.length()
+    }
+
+    pub fn random_in_bounds(uniform: &Uniform<f64>) -> Vec3 {
+        Vec3 {
+            x: uniform.sample(&mut rand::thread_rng()),
+            y: uniform.sample(&mut rand::thread_rng()),
+            z: uniform.sample(&mut rand::thread_rng()),
+        }
+    }
+
+    pub fn random_in_unit_sphere() -> Vec3 {
+        let uniform_sampler = Uniform::from(0.0..1.0);
+        loop {
+            let p = Vec3::random_in_bounds(&uniform_sampler);
+
+            if p.length_squared() >= 1.0 {
+                continue;
+            }
+
+            return p;
+        }
+    }
+
+    pub fn random_in_hemisphere(normal: &Vec3) -> Vec3 {
+        let in_unit_sphere = Vec3::random_in_unit_sphere();
+
+        if in_unit_sphere.dot(normal) > 0.0 {
+            in_unit_sphere
+        } else {
+            -in_unit_sphere
+        }
     }
 }
 

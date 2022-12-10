@@ -7,8 +7,8 @@ pub fn write_color(color: Color, sample_count: i32) {
 
     print!(
         "{} {} {}\n",
-        (256.0 * f64::clamp(color.x * scale, 0.0, 0.99)) as i32,
-        (256.0 * f64::clamp(color.y * scale, 0.0, 0.99)) as i32,
-        (256.0 * f64::clamp(color.z * scale, 0.0, 0.99)) as i32,
+        (256.0 * f64::clamp(f64::sqrt(color.x * scale), 0.0, 0.99)) as i32,
+        (256.0 * f64::clamp(f64::sqrt(color.y * scale), 0.0, 0.99)) as i32,
+        (256.0 * f64::clamp(f64::sqrt(color.z * scale), 0.0, 0.99)) as i32,
     );
 }
