@@ -1,14 +1,17 @@
+use crate::material::Material;
 use crate::ray::Ray;
 use crate::vec3::Vec3;
 
+use std::rc::Rc;
+
 use Vec3 as Point3;
-#[derive(Copy, Clone)]
 pub struct HitRecord {
     pub normal: Vec3,
     pub point: Point3,
     pub t: f64,
 
     pub front_face: bool,
+    pub material: Option<Rc<dyn Material>>,
 }
 
 impl HitRecord {
@@ -29,6 +32,7 @@ pub trait Hittable {
 pub struct Sphere {
     pub center: Point3,
     pub radius: f64,
+    pub material: Option<Rc<dyn Material>>,
 }
 
 impl Hittable for Sphere {
@@ -57,6 +61,7 @@ impl Hittable for Sphere {
         hit_record.point = ray.at(root);
         let outward_normal = (hit_record.point - self.center) / self.radius;
         hit_record.set_face_normal(ray, &outward_normal);
+        hit_record.material = self.material.clone();
 
         return true;
     }

@@ -28,44 +28,56 @@ impl Scene {
     }
 
     pub fn process_ray(&self, ray: &Ray, max_bounce: u32) -> Color {
+        if max_bounce <= 0 {
+            return Color::new(0.0, 0.0, 0.0);
+        }
+
         let mut closest_rec = HitRecord {
             normal: Vec3::new(0.0, 0.0, 0.0),
             point: Point3::new(0.0, 0.0, 0.0),
             t: f64::INFINITY,
             front_face: false,
+            material: None,
         };
 
-        if max_bounce <= 0 {
-            return Color::new(0.0, 0.0, 0.0);
-        }
-
-        let mut temp_rec: HitRecord = closest_rec.clone();
         for hittable in self.hittables.iter() {
+            let mut temp_rec = HitRecord {
+                normal: Vec3::new(0.0, 0.0, 0.0),
+                point: Point3::new(0.0, 0.0, 0.0),
+                t: f64::INFINITY,
+                front_face: false,
+                material: None,
+            };
+
             if hittable.hit(ray, 0.001, closest_rec.t, &mut temp_rec) {
                 closest_rec = temp_rec;
             }
         }
 
-        let target = temp_rec.point + Vec3::random_in_hemisphere(&temp_rec.normal);
-        match closest_rec.normal != Vec3::new(0.0, 0.0, 0.0) {
+        let target = closest_rec.point + Vec3::random_in_hemisphere(&closest_rec.normal);
+        let unit_y = ray.dir.unit().y;
+
+        match closest_rec.material.is_some() {
             true => {
-                return self.process_ray(
-                    &Ray {
-                        orig: temp_rec.point,
-                        dir: target - temp_rec.point,
-                    },
-                    max_bounce - 1,
-                ) * 0.5
+                let (scattered, attenuation, scatter_ray) = closest_rec
+                    .material
+                    .as_ref()
+                    .unwrap()
+                    .scatter(ray, &closest_rec);
+
+                return if scattered {
+                    attenuation * self.process_ray(&scatter_ray, max_bounce - 1) * 0.5
+                } else {
+                    Color::new(0.0, 0.0, 0.0)
+                };
             }
 
             false => {
-                let unit_y = ray.dir.unit().y;
-
-                lerp::<Color>(
+                return lerp::<Color>(
                     Color::new(1.0, 1.0, 1.0),
                     Color::new(0.5, 0.7, 0.9),
                     0.5 * (unit_y + 1.0), // map unit_y from [-1.0 -> 1.0] to [0.0 -> 1.0]
-                )
+                );
             }
         }
     }

@@ -72,6 +72,14 @@ impl Vec3 {
             -in_unit_sphere
         }
     }
+
+    pub fn reflect(&self, normal: &Vec3) -> Vec3 {
+        *self - *normal * (self.dot(normal) * 2.0)
+    }
+
+    pub fn is_near_zero(&self) -> bool {
+        f64::abs(self.x) < 1e-8 && f64::abs(self.y) < 1e-8 && f64::abs(self.z) < 1e-8
+    }
 }
 
 impl ops::Add<Vec3> for Vec3 {
