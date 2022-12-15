@@ -66,7 +66,7 @@ impl Scene {
                     .scatter(ray, &closest_rec);
 
                 return if scattered {
-                    attenuation * self.process_ray(&scatter_ray, max_bounce - 1) * 0.5
+                    attenuation * self.process_ray(&scatter_ray, max_bounce - 1)
                 } else {
                     Color::new(0.0, 0.0, 0.0)
                 };

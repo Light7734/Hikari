@@ -8,7 +8,7 @@ pub mod vec3;
 
 use std::rc::Rc;
 
-use crate::material::{Lambertian, Material, Metal};
+use crate::material::{Dielectric, Lambertian, Material, Metal};
 
 use crate::vec3::Vec3;
 use Vec3 as Point3;
@@ -42,16 +42,13 @@ fn main() {
         albedo: Color::new(0.8, 0.8, 0.0),
     });
 
-    let material_center = Rc::new(Lambertian {
-        albedo: Color::new(0.7, 0.3, 0.3),
-    });
-    let material_left = Rc::new(Metal {
-        albedo: Color::new(0.8, 0.8, 0.8),
-        fuzz: 0.3
-    });
+    let material_center = Rc::new(Dielectric { ir: 1.5 });
+
+    let material_left = Rc::new(Dielectric { ir: 1.5 });
+
     let material_right = Rc::new(Metal {
         albedo: Color::new(0.8, 0.6, 0.2),
-        fuzz: 1.0
+        fuzz: 1.0,
     });
 
     scene.add(Box::new(Sphere {
@@ -69,16 +66,22 @@ fn main() {
     scene.add(Box::new(Sphere {
         center: Point3::new(-1.0, 0.0, -1.0),
         radius: 0.5,
-        material: Some(material_right),
+        material: Some(material_left.clone()),
+    }));
+
+    scene.add(Box::new(Sphere {
+        center: Point3::new(-1.0, 0.0, -1.0),
+        radius: -0.4,
+        material: Some(material_left),
     }));
 
     scene.add(Box::new(Sphere {
         center: Point3::new(1.0, 0.0, -1.0),
         radius: 0.5,
-        material: Some(material_left),
+        material: Some(material_right),
     }));
 
-    let sample_count = 64;
+    let sample_count = 100;
     let between = Uniform::from(0.0..1.0);
     let mut rng = rand::thread_rng();
 
@@ -92,7 +95,7 @@ fn main() {
                 let v =
                     ((j as f64) + (between.sample(&mut rng) as f64)) / ((image_height - 1) as f64);
 
-                color += scene.process_ray(&mut camera.get_ray(u, v), 8);
+                color += scene.process_ray(&mut camera.get_ray(u, v), 50);
             }
 
             write_color(color, sample_count);

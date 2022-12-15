@@ -80,6 +80,15 @@ impl Vec3 {
     pub fn is_near_zero(&self) -> bool {
         f64::abs(self.x) < 1e-8 && f64::abs(self.y) < 1e-8 && f64::abs(self.z) < 1e-8
     }
+
+    pub fn refract(&self, normal: &Vec3, etai_over_etat: f64) -> Vec3 {
+        let cos_theta = f64::min((-(*self)).dot(normal), 1.0);
+
+        let r_out_perp = etai_over_etat * (*self + *normal * cos_theta);
+        let r_out_parallel = *normal * -f64::sqrt(f64::abs(1.0 - r_out_perp.length_squared()));
+
+        return r_out_perp + r_out_parallel;
+    }
 }
 
 impl ops::Add<Vec3> for Vec3 {
