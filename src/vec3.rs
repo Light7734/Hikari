@@ -37,13 +37,13 @@ impl Vec3 {
     pub fn dot(&self, rhs: &Vec3) -> f64 {
         (self.x * rhs.x) + (self.y * rhs.y) + (self.z * rhs.z)
     }
-    
-    pub fn cross(&self, rhs: &Vec3) -> Vec3{
-        Vec3{x:self.y * rhs.z - self.z * rhs.y,
-        y:self.z * rhs.x -  self.x * rhs.z,
-        z: self.x*rhs.y - self.y *rhs.x}
 
-
+    pub fn cross(&self, rhs: &Vec3) -> Vec3 {
+        Vec3 {
+            x: self.y * rhs.z - self.z * rhs.y,
+            y: self.z * rhs.x - self.x * rhs.z,
+            z: self.x * rhs.y - self.y * rhs.x,
+        }
     }
 
     pub fn unit(&self) -> Vec3 {
@@ -78,6 +78,21 @@ impl Vec3 {
             in_unit_sphere
         } else {
             -in_unit_sphere
+        }
+    }
+
+    pub fn random_in_unit_disk() -> Vec3 {
+        let uniform_sampler = Uniform::from(-1.0..1.0);
+        loop {
+            let p = Vec3::new(
+                uniform_sampler.sample(&mut rand::thread_rng()),
+                uniform_sampler.sample(&mut rand::thread_rng()),
+                0.0,
+            );
+
+            if p.length_squared() >= 1.0 { continue;} 
+            else
+            { return p};
         }
     }
 
