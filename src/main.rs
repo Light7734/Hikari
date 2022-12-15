@@ -36,7 +36,7 @@ use rand::distributions::{Distribution, Uniform};
 fn main() {
     // Image
     let aspect_ratio = 16.0 / 9.0;
-    let image_width = 800;
+    let image_width = 420;
     let image_height = (image_width as f64 / aspect_ratio) as i32;
 
     let sample_count = 100;
@@ -48,14 +48,22 @@ fn main() {
 
     let row_per_thread = f64::ceil(image_height as f64 / (num_threads as f64)) as i32;
 
-    let camera = Arc::new(Camera::new());
+    let camera = Arc::new(Camera::new(
+        Point3::new(-2.0, 2.0, 1.0),
+        Point3::new(0.0, 0.0, -1.0),
+        Vec3::new(0.0, 1.0, 0.0),
+        20.0,
+        aspect_ratio,
+    ));
 
     // materials
     let material_ground = Arc::new(Lambertian {
         albedo: Color::new(0.8, 0.8, 0.0),
     });
 
-    let material_center = Arc::new(Dielectric { ir: 1.5 });
+    let material_center = Arc::new(Lambertian {
+        albedo: Color::new(0.1, 0.2, 0.5),
+    });
 
     let material_left = Arc::new(Dielectric { ir: 1.5 });
 
