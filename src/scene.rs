@@ -6,7 +6,7 @@ use Vec3 as Color;
 use Vec3 as Point3;
 
 pub struct Scene {
-    pub hittables: Vec<Box<dyn Hittable>>,
+    pub hittables: Vec<Box<dyn Hittable + Send + Sync + 'static>>,
 }
 
 pub fn lerp<T>(a: T, b: T, val: f64) -> T
@@ -18,7 +18,7 @@ where
 }
 
 impl Scene {
-    pub fn add(&mut self, hittable: Box<dyn Hittable>) {
+    pub fn add(&mut self, hittable: Box<dyn Hittable + Send + Sync + 'static>) {
         self.hittables.push(hittable);
     }
 

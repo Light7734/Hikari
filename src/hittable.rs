@@ -3,6 +3,7 @@ use crate::ray::Ray;
 use crate::vec3::Vec3;
 
 use std::rc::Rc;
+use std::sync::Arc;
 
 use Vec3 as Point3;
 pub struct HitRecord {
@@ -11,7 +12,7 @@ pub struct HitRecord {
     pub t: f64,
 
     pub front_face: bool,
-    pub material: Option<Rc<dyn Material>>,
+    pub material: Option<Arc<dyn Material + Send + Sync + 'static>>,
 }
 
 impl HitRecord {
@@ -32,7 +33,7 @@ pub trait Hittable {
 pub struct Sphere {
     pub center: Point3,
     pub radius: f64,
-    pub material: Option<Rc<dyn Material>>,
+    pub material: Option<Arc<dyn Material + Send + Sync + 'static>>,
 }
 
 impl Hittable for Sphere {
