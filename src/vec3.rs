@@ -2,11 +2,17 @@ use std::ops;
 
 use rand::distributions::{Distribution, Uniform};
 
-#[derive(Copy, Clone, PartialEq, Debug)]
+use bytemuck::{Pod, Zeroable};
+use display_json::DebugAsJsonPretty;
+
+use serde::Serialize;
+
+#[derive(Copy, Clone, PartialEq, Zeroable, Pod, Default, Serialize, DebugAsJsonPretty)]
+#[repr(C)]
 pub struct Vec3 {
-    pub x: f64,
-    pub y: f64,
-    pub z: f64,
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
 }
 
 impl Vec3 {
@@ -22,19 +28,19 @@ impl Vec3 {
         z: 1.0,
     };
 
-    pub fn new(x: f64, y: f64, z: f64) -> Vec3 {
+    pub fn new(x: f32, y: f32, z: f32) -> Vec3 {
         Vec3 { x, y, z }
     }
 
-    pub fn length(&self) -> f64 {
+    pub fn length(&self) -> f32 {
         return self.length_squared().sqrt();
     }
 
-    pub fn length_squared(&self) -> f64 {
+    pub fn length_squared(&self) -> f32 {
         return (self.x * self.x) + (self.y * self.y) + (self.z * self.z);
     }
 
-    pub fn dot(&self, rhs: &Vec3) -> f64 {
+    pub fn dot(&self, rhs: &Vec3) -> f32 {
         (self.x * rhs.x) + (self.y * rhs.y) + (self.z * rhs.z)
     }
 
@@ -50,7 +56,7 @@ impl Vec3 {
         *self / self.length()
     }
 
-    pub fn random_in_bounds(uniform: &Uniform<f64>) -> Vec3 {
+    pub fn random_in_bounds(uniform: &Uniform<f32>) -> Vec3 {
         Vec3 {
             x: uniform.sample(&mut rand::thread_rng()),
             y: uniform.sample(&mut rand::thread_rng()),
@@ -90,9 +96,11 @@ impl Vec3 {
                 0.0,
             );
 
-            if p.length_squared() >= 1.0 { continue;} 
-            else
-            { return p};
+            if p.length_squared() >= 1.0 {
+                continue;
+            } else {
+                return p;
+            };
         }
     }
 
@@ -101,14 +109,14 @@ impl Vec3 {
     }
 
     pub fn is_near_zero(&self) -> bool {
-        f64::abs(self.x) < 1e-8 && f64::abs(self.y) < 1e-8 && f64::abs(self.z) < 1e-8
+        f32::abs(self.x) < 1e-8 && f32::abs(self.y) < 1e-8 && f32::abs(self.z) < 1e-8
     }
 
-    pub fn refract(&self, normal: &Vec3, etai_over_etat: f64) -> Vec3 {
-        let cos_theta = f64::min((-(*self)).dot(normal), 1.0);
+    pub fn refract(&self, normal: &Vec3, etai_over_etat: f32) -> Vec3 {
+        let cos_theta = f32::min((-(*self)).dot(normal), 1.0);
 
         let r_out_perp = etai_over_etat * (*self + *normal * cos_theta);
-        let r_out_parallel = *normal * -f64::sqrt(f64::abs(1.0 - r_out_perp.length_squared()));
+        let r_out_parallel = *normal * -f32::sqrt(f32::abs(1.0 - r_out_perp.length_squared()));
 
         return r_out_perp + r_out_parallel;
     }
@@ -150,7 +158,7 @@ impl ops::Mul<Vec3> for Vec3 {
     }
 }
 
-impl ops::Mul<Vec3> for f64 {
+impl ops::Mul<Vec3> for f32 {
     type Output = Vec3;
 
     fn mul(self, rhs: Vec3) -> Self::Output {
@@ -158,10 +166,10 @@ impl ops::Mul<Vec3> for f64 {
     }
 }
 
-impl ops::Mul<f64> for Vec3 {
+impl ops::Mul<f32> for Vec3 {
     type Output = Vec3;
 
-    fn mul(self, rhs: f64) -> Self::Output {
+    fn mul(self, rhs: f32) -> Self::Output {
         Self {
             x: self.x * rhs,
             y: self.y * rhs,
@@ -170,10 +178,10 @@ impl ops::Mul<f64> for Vec3 {
     }
 }
 
-impl ops::Div<f64> for Vec3 {
+impl ops::Div<f32> for Vec3 {
     type Output = Vec3;
 
-    fn div(self, rhs: f64) -> Self::Output {
+    fn div(self, rhs: f32) -> Self::Output {
         (1.0 / rhs) * self
     }
 }
@@ -200,8 +208,8 @@ impl ops::AddAssign<Vec3> for Vec3 {
     }
 }
 
-impl ops::AddAssign<f64> for Vec3 {
-    fn add_assign(&mut self, rhs: f64) {
+impl ops::AddAssign<f32> for Vec3 {
+    fn add_assign(&mut self, rhs: f32) {
         *self = Self {
             x: self.x + rhs,
             y: self.y + rhs,
@@ -210,8 +218,8 @@ impl ops::AddAssign<f64> for Vec3 {
     }
 }
 
-impl ops::MulAssign<f64> for Vec3 {
-    fn mul_assign(&mut self, rhs: f64) {
+impl ops::MulAssign<f32> for Vec3 {
+    fn mul_assign(&mut self, rhs: f32) {
         *self = Self {
             x: self.x * rhs,
             y: self.y * rhs,
@@ -220,8 +228,8 @@ impl ops::MulAssign<f64> for Vec3 {
     }
 }
 
-impl ops::DivAssign<f64> for Vec3 {
-    fn div_assign(&mut self, rhs: f64) {
+impl ops::DivAssign<f32> for Vec3 {
+    fn div_assign(&mut self, rhs: f32) {
         *self = Self {
             x: self.x / rhs,
             y: self.y / rhs,
