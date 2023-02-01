@@ -1,15 +1,12 @@
-pub mod vec3;
 pub mod raytracer;
+pub mod vec3;
 
-use std::io::prelude::*;
-
-use std::fs::File;
-use std::path::Path;
-
-use rand::distributions::{Distribution, Uniform};
-
-use crate::raytracer::{Camera, Config, Sphere, Vulkan};
+use crate::raytracer::*;
 use crate::vec3::Vec3;
+use rand::distributions::{Distribution, Uniform};
+use std::fs::File;
+use std::io::prelude::*;
+use std::path::Path;
 
 fn rand() -> f32 {
     Uniform::from(0.0..1.0).sample(&mut rand::thread_rng())
@@ -18,7 +15,7 @@ fn rand() -> f32 {
 fn main() {
     // Image
     let aspect_ratio: f32 = 3.0 / 2.0;
-    let image_width = 32 * 32;
+    let image_width = (720.0 * aspect_ratio) as u32;
     let image_height = (image_width as f32 / aspect_ratio) as u32;
 
     let lookfrom = Vec3::new(13.0, 2.0, 3.0);
@@ -130,8 +127,8 @@ fn main() {
 
     let config = Config {
         num_spheres: spheres.len() as u32,
-        sample_count: 50,
-        max_bounces: 50,
+        sample_count: 32,
+        max_bounces: 4,
         width: image_width,
         height: image_height,
 
@@ -139,7 +136,8 @@ fn main() {
         ..Default::default()
     };
 
-    let output = Vulkan::raytrace(config, spheres);
+    let mut raytracer = Raytracer::new(config, spheres);
+    let output = raytracer.raytrace();
 
     let mut out_string: String = String::new();
     out_string.push_str(&format!("P3\n{} {}\n255\n", image_width, image_height));

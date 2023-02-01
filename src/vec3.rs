@@ -1,11 +1,8 @@
-use std::ops;
-
-use rand::distributions::{Distribution, Uniform};
-
 use bytemuck::{Pod, Zeroable};
 use display_json::DebugAsJsonPretty;
-
+use rand::distributions::{Distribution, Uniform};
 use serde::Serialize;
+use std::ops;
 
 #[derive(Copy, Clone, PartialEq, Zeroable, Pod, Default, Serialize, DebugAsJsonPretty)]
 #[repr(C)]
