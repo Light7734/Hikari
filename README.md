@@ -1,10 +1,14 @@
 # Hikari
+<div align="center">
+<img width=25% src="https://github.com/Light7734/Portfolio/raw/main/static/icons/hikari.svg"/>
+<br/>
 
 <i>
 "Software is like sex, it's better when it's free."
 
 -Linus Torvalds
 </i>
+</div>
 
 ## What's all this?
 Hikari (light/shine/ray in japanese) is a raytracer written in Rust using the Vulkan API following the great trio-books on raytracing written by Peter Shirley.
